@@ -1,0 +1,25 @@
+{
+  "name": "product-cascading-system",
+  "version": "2.0.0",
+  "description": "New Product Cascading System - multi-product announcements, bulk import, auto memo PDF, store cascading and acknowledgment tracking",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "migrate:pg": "node scripts/migrate-to-postgres.js",
+    "create-user": "node scripts/create-user.js"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "express": "^4.21.2",
+    "jszip": "^3.10.1",
+    "multer": "^2.0.2",
+    "papaparse": "^5.4.1",
+    "pdfkit": "^0.15.2",
+    "pg": "^8.23.1",
+    "sharp": "^0.35.5"
+  }
+}
