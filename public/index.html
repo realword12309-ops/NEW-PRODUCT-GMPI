@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Product Cascading System — Majesty Pharma</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body data-bg="full">
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo"><img src="/assets/majesty-pharma-logo.png" alt="Majesty Pharma"></div>
+      <h1>NEW PRODUCT<br>CASCADING SYSTEM</h1>
+      <span>MAJESTY PHARMA · GMPI</span>
+    </div>
+    <nav class="nav" id="nav">
+      <a href="#/announcements" data-route="announcements"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5V3h6v1.5"/><path d="M9 10h6M9 14h6M9 18h4"/></svg><span>Announcements</span></a>
+      <a href="#/new" data-route="new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>New Announcement</span></a>
+      <a href="#/products" data-route="products"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg><span>Product Records</span></a>
+      <a href="#/stores" data-route="stores"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l1.2-5h13.6L20 10"/><path d="M4 10h16v2a2.4 2.4 0 0 1-4.8 0 2.4 2.4 0 0 1-4.8 0A2.4 2.4 0 0 1 5.6 12 2.4 2.4 0 0 1 4 12v-2z"/><path d="M5.5 14.5V20h13v-5.5M9.5 20v-4h5v4"/></svg><span>Stores</span></a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="sidebar-user"><span id="sidebar-username"></span><button class="btn btn-ghost btn-sm" id="logout-btn" type="button">Sign out</button></div>
+      <div class="sidebar-company"><b>GRAND MAJESTY</b><br>PHARMACEUTICAL INC.</div>
+    </div>
+  </aside>
+  <main class="main" id="app"></main>
+</div>
+<div id="modal-root"></div>
+<div id="toast"></div>
+<script src="/bg.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

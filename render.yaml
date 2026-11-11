@@ -1,9 +1,13 @@
-
+# Render Blueprint — GMPI New Product Cascading System
+# Creates ONLY the web service. Uses your EXISTING Render PostgreSQL (gmpi-database).
+# Deploy: Render Dashboard -> New -> Blueprint -> connect this repo -> Apply.
+# You will be prompted for DATABASE_URL, ADMIN_USERNAME and ADMIN_PASSWORD (sync: false).
 services:
   - type: web
     name: gmpi-cascading
     runtime: node
     plan: free
+    region: oregon
     buildCommand: npm ci
     startCommand: node server.js
     healthCheckPath: /api/health

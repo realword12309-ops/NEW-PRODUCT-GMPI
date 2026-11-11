@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Majesty Pharma New Product Cascading System</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body data-bg="subtle">
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="brand-logo"><img src="/assets/majesty-pharma-logo.png" alt="Majesty Pharma"></div>
+      <div class="login-tag">MAJESTY PHARMA · GMPI</div>
+      <h1>New Product Cascading System</h1>
+      <p class="login-sub" id="login-sub">Sign in with your authorized account to continue.</p>
+    </div>
+    <form id="login-form" autocomplete="on">
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" required maxlength="64" placeholder="Your username">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Your password">
+      </div>
+      <div class="field" id="confirm-field" style="display:none">
+        <label for="confirm">Confirm Password</label>
+        <input id="confirm" name="confirm" type="password" autocomplete="new-password" placeholder="Re-enter password">
+      </div>
+      <div class="login-error" id="login-error" role="alert"></div>
+      <button class="btn btn-primary login-submit" id="login-submit" type="submit">Sign In</button>
+    </form>
+    <div class="login-foot">GRAND MAJESTY PHARMACEUTICAL INC.<br>Authorized personnel only.</div>
+  </div>
+</div>
+<script src="/bg.js"></script>
+<script>
+'use strict';
+const form = document.getElementById('login-form');
+const errEl = document.getElementById('login-error');
+const submitBtn = document.getElementById('login-submit');
+const subEl = document.getElementById('login-sub');
+const confirmField = document.getElementById('confirm-field');
+let setupMode = false;
+
+function showError(msg) { errEl.textContent = msg; errEl.classList.add('show'); }
+function clearError() { errEl.textContent = ''; errEl.classList.remove('show'); }
+
+(async () => {
+  try {
+    const res = await fetch('/api/auth/me');
+    if (res.status === 401) {
+      const data = await res.json().catch(() => ({}));
+      if (data.setupNeeded) {
+        setupMode = true;
+        subEl.textContent = 'Create the administrator account to secure this system.';
+        confirmField.style.display = '';
+        document.getElementById('confirm').required = true;
+        document.getElementById('password').autocomplete = 'new-password';
+        submitBtn.textContent = 'Create Administrator Account';
+      }
+    } else if (res.ok) {
+      location.replace('/');
+    }
+  } catch {}
+})();
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearError();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  if (setupMode) {
+    const confirm = document.getElementById('confirm').value;
+    if (password !== confirm) return showError('Passwords do not match.');
+    if (password.length < 8) return showError('Password must be at least 8 characters.');
+  }
+  submitBtn.disabled = true;
+  submitBtn.textContent = setupMode ? 'Creating account…' : 'Signing in…';
+  try {
+    const res = await fetch(setupMode ? '/api/auth/setup' : '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Sign in failed.');
+    location.replace('/');
+  } catch (err) {
+    showError(err.message);
+    submitBtn.disabled = false;
+    submitBtn.textContent = setupMode ? 'Create Administrator Account' : 'Sign In';
+  }
+});
+</script>
+</body>
+</html>

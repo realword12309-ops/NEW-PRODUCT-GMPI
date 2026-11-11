@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Announcement — Majesty Pharma</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .view-wrap { max-width: 1060px; margin: 0 auto; padding: 0 18px 60px; }
+  .view-header {
+    background:
+      radial-gradient(800px 300px at 85% 0%, rgba(214,180,106,.14), rgba(214,180,106,0) 60%),
+      linear-gradient(120deg, #6B1229 0%, #5B1025 55%, #3B0B19 100%);
+    color: #F7F3EF; padding: 30px 0; margin-bottom: 22px;
+    border-bottom: 2px solid rgba(214,180,106,.5);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  .view-header .inner { max-width: 1060px; margin: 0 auto; padding: 0 18px; }
+  .view-header h1 { font-size: 22px; letter-spacing: .5px; }
+  .view-header .tag { font-size: 11px; letter-spacing: 2.5px; color: #F0D99B; margin-bottom: 6px; font-weight: 600; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 26px; }
+  .sig-box { border-top: 1px solid rgba(214,180,106,.4); padding-top: 8px; }
+  .sig-box .label { font-size: 11px; color: #B8ADB2; text-transform: uppercase; letter-spacing: .5px; }
+  .sig-box .name { font-weight: 700; margin-top: 26px; color: #F7F3EF; }
+  @media (max-width: 640px) { .sig-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-bg="subtle">
+<header class="view-header">
+  <div class="inner">
+    <div class="tag">MAJESTY PHARMA · NEW PRODUCT ANNOUNCEMENT</div>
+    <h1 id="v-title">Loading...</h1>
+  </div>
+</header>
+<div class="view-wrap" id="v-body"></div>
+<div id="toast"></div>
+<script src="/bg.js"></script>
+<script src="/view.js"></script>
+</body>
+</html>
