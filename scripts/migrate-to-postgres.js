@@ -42,7 +42,7 @@ async function main() {
 
   await copyTable(src, 'stores', ['id', 'name', 'code', 'created_at']);
   await copyTable(src, 'announcements', ['id', 'slug', 'title', 'memo_no', 'effective_date', 'intro', 'prepared_by', 'approved_by', 'to_recipient', 'from_sender', 'status', 'created_at', 'updated_at']);
-  await copyTable(src, 'products', ['id', 'announcement_id', 'item_code', 'item_description', 'short_description', 'image_path', 'sort_order', 'packaging', 'srp', 'discount', 'trade_price', 'price3', 'uom_group_name', 'retail_price']);
+  await copyTable(src, 'products', ['id', 'announcement_id', 'principal', 'item_category', 'item_code', 'item_description', 'short_description', 'image_path', 'sort_order', 'packaging', 'srp', 'discount', 'trade_price', 'price3', 'uom_group_name', 'retail_price']);
   await copyTable(src, 'announcement_stores', ['id', 'announcement_id', 'store_id', 'acknowledged_at', 'acknowledged_by']);
 
   // User accounts (password hashes) — table may not exist in older local DBs.

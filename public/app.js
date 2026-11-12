@@ -258,6 +258,7 @@ function renderProductList() {
       <div class="info">
         <div class="code">${esc(p.item_code)}</div>
         <div class="desc">${esc(p.item_description)}</div>
+        ${p.principal || p.item_category ? `<div class="short" style="color:var(--gold-soft)">${[p.principal, p.item_category].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
         <div class="short">${esc(p.short_description)}</div>
         ${pricingSummary(p) ? `<div class="short" style="color:var(--gold-soft)">${pricingSummary(p)}</div>` : ''}
       </div>
@@ -305,10 +306,14 @@ function pricingSummary(p) {
 }
 
 function productModal(idx) {
-  const p = idx !== null ? editor.products[idx] : { item_code: '', item_description: '', short_description: '', image_path: null, packaging: '', srp: '', discount: '', trade_price: '', price3: '', uom_group_name: '', retail_price: '' };
+  const p = idx !== null ? editor.products[idx] : { principal: '', item_category: '', item_code: '', item_description: '', short_description: '', image_path: null, packaging: '', srp: '', discount: '', trade_price: '', price3: '', uom_group_name: '', retail_price: '' };
   const m = openModal(`
     <div class="modal-head"><h3>${idx !== null ? 'Edit Product' : 'Add Product'}</h3><button class="modal-close" data-close>&times;</button></div>
     <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Principal</label><input id="p-principal" value="${esc(p.principal || '')}" placeholder="e.g. Unilab"></div>
+        <div class="field"><label>Item Category</label><input id="p-category" value="${esc(p.item_category || '')}" placeholder="e.g. Vitamins & Supplements"></div>
+      </div>
       <div class="field"><label>Item Code <span class="req">*</span></label><input id="p-code" value="${esc(p.item_code)}" placeholder="e.g. ABC-123"></div>
       <div class="field"><label>Item Description <span class="req">*</span></label><input id="p-desc" value="${esc(p.item_description)}" placeholder="Official item name / description"></div>
       <div class="field"><label>Short Description <span class="req">*</span></label><textarea id="p-short" placeholder="Brief selling point or details shown in the memo">${esc(p.short_description)}</textarea></div>
@@ -370,6 +375,8 @@ function productModal(idx) {
     const dup = editor.products.some((x, i) => i !== idx && x.item_code.toLowerCase() === code.toLowerCase());
     if (dup) { errEl.textContent = `Item Code "${code}" is already in this announcement.`; return; }
     const entry = {
+      principal: $('#p-principal', m).value.trim(),
+      item_category: $('#p-category', m).value.trim(),
       item_code: code, item_description: desc, short_description: short, image_path: imagePath,
       packaging: $('#p-packaging', m).value.trim(),
       srp: $('#p-srp', m).value.trim(),
@@ -499,7 +506,7 @@ async function saveAnnouncement() {
     to_recipient: $('#f-to').value.trim(),
     from_sender: $('#f-from').value.trim(),
     intro: $('#f-intro').value.trim(),
-    products: editor.products.map(({ item_code, item_description, short_description, image_path, packaging, srp, discount, trade_price, price3, uom_group_name, retail_price }) => ({ item_code, item_description, short_description, image_path, packaging, srp, discount, trade_price, price3, uom_group_name, retail_price })),
+    products: editor.products.map(({ principal, item_category, item_code, item_description, short_description, image_path, packaging, srp, discount, trade_price, price3, uom_group_name, retail_price }) => ({ principal, item_category, item_code, item_description, short_description, image_path, packaging, srp, discount, trade_price, price3, uom_group_name, retail_price })),
   };
   if (!body.title) { toast('Announcement title is required.', 'error'); $('#f-title').focus(); return; }
   if (!body.products.length) { toast('Add at least one product.', 'error'); return; }
@@ -622,7 +629,7 @@ function pricingGrid(p) {
 function productCard(p) {
   return `<div class="product-card">
     ${p.image_path ? `<img src="${esc(p.image_path)}" alt="${esc(p.item_code)}">` : '<div class="no-img">No image</div>'}
-    <div style="flex:1;min-width:0"><div class="code">${esc(p.item_code)}</div><div class="desc">${esc(p.item_description)}</div><div class="short">${esc(p.short_description)}</div>${pricingGrid(p)}</div>
+    <div style="flex:1;min-width:0"><div class="code">${esc(p.item_code)}</div><div class="desc">${esc(p.item_description)}</div>${p.principal || p.item_category ? `<div class="short" style="color:var(--gold-soft)">${[p.principal, p.item_category].filter(Boolean).map(esc).join(' · ')}</div>` : ''}<div class="short">${esc(p.short_description)}</div>${pricingGrid(p)}</div>
   </div>`;
 }
 
@@ -732,9 +739,11 @@ async function loadProductRecords() {
     const data = await api(`/api/products?page=${prodState.page}&limit=25&search=${encodeURIComponent(prodState.search)}`);
     const wrap = $('#pr-table');
     wrap.innerHTML = data.items.length ? `<table><thead><tr>
-      <th style="width:64px">Image</th><th>Item Code</th><th>Item Description</th><th>Short Description</th><th>Announcement</th><th>Date</th>
+      <th style="width:64px">Image</th><th>Principal</th><th>Item Category</th><th>Item Code</th><th>Item Description</th><th>Short Description</th><th>Announcement</th><th>Date</th>
     </tr></thead><tbody>${data.items.map((p) => `<tr>
       <td>${p.image_path ? `<img class="thumb" style="width:44px;height:44px;object-fit:cover;border-radius:6px" src="${esc(p.image_path)}">` : '<span class="muted">—</span>'}</td>
+      <td>${esc(p.principal || '—')}</td>
+      <td>${esc(p.item_category || '—')}</td>
       <td><b style="color:var(--gold)">${esc(p.item_code)}</b></td>
       <td>${esc(p.item_description)}</td>
       <td class="muted">${esc(p.short_description)}</td>

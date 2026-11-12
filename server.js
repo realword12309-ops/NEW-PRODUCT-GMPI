@@ -245,6 +245,8 @@ function validateAnnouncement(body) {
     }
     return {
       item_code, item_description, short_description, image_path, sort_order: i,
+      principal: String(p.principal || '').trim(),
+      item_category: String(p.item_category || '').trim(),
       packaging: String(p.packaging || '').trim(),
       srp: String(p.srp || '').trim(),
       discount: String(p.discount || '').trim(),
@@ -268,14 +270,14 @@ function validateAnnouncement(body) {
 }
 
 const INSERT_PRODUCT_SQL = `
-    INSERT INTO products (announcement_id, item_code, item_description, short_description, image_path, sort_order, packaging, srp, discount, trade_price, price3, uom_group_name, retail_price)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO products (announcement_id, principal, item_category, item_code, item_description, short_description, image_path, sort_order, packaging, srp, discount, trade_price, price3, uom_group_name, retail_price)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
 async function insertProducts(tx, announcementId, products) {
   const stmt = tx.prepare(INSERT_PRODUCT_SQL);
   for (const p of products) {
-    await stmt.run(announcementId, p.item_code, p.item_description, p.short_description, p.image_path, p.sort_order, p.packaging, p.srp, p.discount, p.trade_price, p.price3, p.uom_group_name, p.retail_price);
+    await stmt.run(announcementId, p.principal, p.item_category, p.item_code, p.item_description, p.short_description, p.image_path, p.sort_order, p.packaging, p.srp, p.discount, p.trade_price, p.price3, p.uom_group_name, p.retail_price);
   }
 }
 
@@ -532,8 +534,8 @@ app.get('/api/products', asyncRoute(async (req, res) => {
   const page = Math.max(1, parseInt(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 25));
   const search = String(req.query.search || '').trim();
-  const where = search ? 'WHERE p.item_code LIKE ? OR p.item_description LIKE ?' : '';
-  const params = search ? [`%${search}%`, `%${search}%`] : [];
+  const where = search ? 'WHERE p.item_code LIKE ? OR p.item_description LIKE ? OR p.principal LIKE ? OR p.item_category LIKE ?' : '';
+  const params = search ? [`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`] : [];
   const total = (await db.prepare(`SELECT COUNT(*) AS c FROM products p ${where}`).get(...params)).c;
   const items = await db.prepare(`
     SELECT p.*, a.title AS announcement_title, a.memo_no, a.created_at AS announced_at, a.status

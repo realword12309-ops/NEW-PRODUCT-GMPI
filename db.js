@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS announcements (
 CREATE TABLE IF NOT EXISTS products (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   announcement_id INTEGER NOT NULL REFERENCES announcements(id) ON DELETE CASCADE,
+  principal TEXT NOT NULL DEFAULT '',
+  item_category TEXT NOT NULL DEFAULT '',
   item_code TEXT NOT NULL,
   item_description TEXT NOT NULL,
   short_description TEXT NOT NULL DEFAULT '',
@@ -114,6 +116,8 @@ CREATE TABLE IF NOT EXISTS announcements (
 CREATE TABLE IF NOT EXISTS products (
   id SERIAL PRIMARY KEY,
   announcement_id INTEGER NOT NULL REFERENCES announcements(id) ON DELETE CASCADE,
+  principal TEXT NOT NULL DEFAULT '',
+  item_category TEXT NOT NULL DEFAULT '',
   item_code TEXT NOT NULL,
   item_description TEXT NOT NULL,
   short_description TEXT NOT NULL DEFAULT '',
@@ -265,7 +269,13 @@ async function transaction(fn) {
 
 async function init() {
   if (IS_PG) {
-    await enqueue(async () => { const c = await getPg(); await c.query(SCHEMA_PG); });
+    await enqueue(async () => {
+      const c = await getPg();
+      await c.query(SCHEMA_PG);
+      // Additive migrations for databases created before these columns existed.
+      await c.query("ALTER TABLE products ADD COLUMN IF NOT EXISTS principal TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE products ADD COLUMN IF NOT EXISTS item_category TEXT NOT NULL DEFAULT ''");
+    });
     return;
   }
   const { DatabaseSync } = require('node:sqlite');
@@ -278,7 +288,7 @@ async function init() {
 
   // Migrate older local databases: add columns without touching existing rows.
   const productCols = sqlite.prepare('PRAGMA table_info(products)').all().map((c) => c.name);
-  for (const col of ['packaging', 'srp', 'discount', 'trade_price', 'price3', 'uom_group_name', 'retail_price']) {
+  for (const col of ['packaging', 'srp', 'discount', 'trade_price', 'price3', 'uom_group_name', 'retail_price', 'principal', 'item_category']) {
     if (!productCols.includes(col)) sqlite.exec(`ALTER TABLE products ADD COLUMN ${col} TEXT NOT NULL DEFAULT ''`);
   }
   const annCols = sqlite.prepare('PRAGMA table_info(announcements)').all().map((c) => c.name);
