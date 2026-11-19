@@ -38,9 +38,17 @@ CREATE TABLE IF NOT EXISTS announcements (
   slug TEXT NOT NULL UNIQUE,
   title TEXT NOT NULL,
   memo_no TEXT NOT NULL DEFAULT '',
+  doc_no TEXT NOT NULL DEFAULT '',
+  ver TEXT NOT NULL DEFAULT '',
   effective_date TEXT NOT NULL DEFAULT '',
+  procedure_title TEXT NOT NULL DEFAULT '',
+  date_created TEXT NOT NULL DEFAULT '',
+  department TEXT NOT NULL DEFAULT 'Merchandising (MRC)',
+  manual_title TEXT NOT NULL DEFAULT 'Memorandum',
+  related_document TEXT NOT NULL DEFAULT '',
   intro TEXT NOT NULL DEFAULT '',
   prepared_by TEXT NOT NULL DEFAULT '',
+  reviewed_by TEXT NOT NULL DEFAULT '',
   approved_by TEXT NOT NULL DEFAULT '',
   to_recipient TEXT NOT NULL DEFAULT '',
   from_sender TEXT NOT NULL DEFAULT 'Grand Majesty Pharmaceutical Inc.',
@@ -102,9 +110,17 @@ CREATE TABLE IF NOT EXISTS announcements (
   slug TEXT NOT NULL UNIQUE,
   title TEXT NOT NULL,
   memo_no TEXT NOT NULL DEFAULT '',
+  doc_no TEXT NOT NULL DEFAULT '',
+  ver TEXT NOT NULL DEFAULT '',
   effective_date TEXT NOT NULL DEFAULT '',
+  procedure_title TEXT NOT NULL DEFAULT '',
+  date_created TEXT NOT NULL DEFAULT '',
+  department TEXT NOT NULL DEFAULT 'Merchandising (MRC)',
+  manual_title TEXT NOT NULL DEFAULT 'Memorandum',
+  related_document TEXT NOT NULL DEFAULT '',
   intro TEXT NOT NULL DEFAULT '',
   prepared_by TEXT NOT NULL DEFAULT '',
+  reviewed_by TEXT NOT NULL DEFAULT '',
   approved_by TEXT NOT NULL DEFAULT '',
   to_recipient TEXT NOT NULL DEFAULT '',
   from_sender TEXT NOT NULL DEFAULT 'Grand Majesty Pharmaceutical Inc.',
@@ -275,6 +291,14 @@ async function init() {
       // Additive migrations for databases created before these columns existed.
       await c.query("ALTER TABLE products ADD COLUMN IF NOT EXISTS principal TEXT NOT NULL DEFAULT ''");
       await c.query("ALTER TABLE products ADD COLUMN IF NOT EXISTS item_category TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS doc_no TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS ver TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS procedure_title TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS date_created TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS department TEXT NOT NULL DEFAULT 'Merchandising (MRC)'");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS manual_title TEXT NOT NULL DEFAULT 'Memorandum'");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS related_document TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS reviewed_by TEXT NOT NULL DEFAULT ''");
     });
     return;
   }
@@ -294,6 +318,18 @@ async function init() {
   const annCols = sqlite.prepare('PRAGMA table_info(announcements)').all().map((c) => c.name);
   if (!annCols.includes('to_recipient')) sqlite.exec("ALTER TABLE announcements ADD COLUMN to_recipient TEXT NOT NULL DEFAULT ''");
   if (!annCols.includes('from_sender')) sqlite.exec("ALTER TABLE announcements ADD COLUMN from_sender TEXT NOT NULL DEFAULT 'Grand Majesty Pharmaceutical Inc.'");
+  for (const [col, def] of [
+    ['doc_no', "''"],
+    ['ver', "''"],
+    ['procedure_title', "''"],
+    ['date_created', "''"],
+    ['department', "'Merchandising (MRC)'"],
+    ['manual_title', "'Memorandum'"],
+    ['related_document', "''"],
+    ['reviewed_by', "''"],
+  ]) {
+    if (!annCols.includes(col)) sqlite.exec(`ALTER TABLE announcements ADD COLUMN ${col} TEXT NOT NULL DEFAULT ${def}`);
+  }
 }
 
 async function close() {
