@@ -141,7 +141,7 @@ async function loadAnnouncements() {
       </tr></thead><tbody>${data.items.map((a) => {
         const pct = a.target_count ? Math.round((a.ack_count / a.target_count) * 100) : 0;
         return `<tr>
-          <td><a href="#/announcement/${a.id}"><b>${esc(a.title)}</b></a><div class="muted">${esc(a.memo_no || 'No memo no.')}</div></td>
+          <td><a href="#/announcement/${a.id}"><b>${esc(a.title)}</b></a><div class="muted">${esc(a.doc_no || a.memo_no || 'No doc no.')}</div></td>
           <td>${a.product_count}</td>
           <td>${badge(a.status)}</td>
           <td>${a.target_count ? `<div class="progress${pct === 100 ? ' ok' : ''}"><div style="width:${pct}%"></div></div><div class="muted">${a.ack_count}/${a.target_count} stores</div>` : '<span class="muted">Not cascaded</span>'}</td>
@@ -195,23 +195,30 @@ async function renderEditor(id) {
       <h3>Announcement Details</h3>
       <div class="field"><label>Title <span class="req">*</span></label><input id="f-title" value="${esc(a.title || '')}" placeholder="e.g. New Products – November 2026 Wave 1"></div>
       <div class="form-grid">
-        <div class="field"><label>Memo No.</label><input id="f-memo" value="${esc(a.memo_no || '')}" placeholder="e.g. MEMO-2026-041"></div>
-        <div class="field"><label>Effective Date</label><input id="f-date" type="date" value="${esc(a.effective_date || '')}"></div>
-      </div>
-      <div class="form-grid routing-grid">
-        <div class="field"><label>To</label><input id="f-to" list="recipient-options" value="${esc(a.to_recipient || '')}" placeholder="Select or type a recipient">
-          <datalist id="recipient-options">
-            <option value="SALES TEAM"></option>
-            <option value="STORES"></option>
-            <option value="OUR VALUED CUSTOMERS"></option>
-          </datalist>
-        </div>
-        <div class="field"><label>From</label><input id="f-from" value="${esc(a.from_sender || 'Grand Majesty Pharmaceutical Inc.')}" placeholder="Grand Majesty Pharmaceutical Inc."></div>
+        <div class="field"><label>Doc No.</label><input id="f-docno" value="${esc(a.doc_no || a.memo_no || '')}" placeholder="e.g. MRC-NPA-2026-041"></div>
+        <div class="field"><label>Ver.</label><input id="f-ver" value="${esc(a.ver || '')}" placeholder="e.g. 01"></div>
       </div>
       <div class="form-grid">
-        <div class="field"><label>Prepared By</label><input id="f-prepared" value="${esc(a.prepared_by || '')}" placeholder="Name / Department"></div>
-        <div class="field"><label>Approved By</label><input id="f-approved" value="${esc(a.approved_by || '')}" placeholder="Name / Department"></div>
+        <div class="field"><label>Eff. Date</label><input id="f-date" type="date" value="${esc(a.effective_date || '')}"></div>
+        <div class="field"><label>Date Created</label><input id="f-created" type="date" value="${esc(a.date_created || '')}"></div>
       </div>
+      <div class="field"><label>Procedure Title</label><input id="f-procedure" value="${esc(a.procedure_title || '')}" placeholder="Defaults to the Title when left blank"></div>
+      <div class="form-grid">
+        <div class="field"><label>Department</label><input id="f-department" value="${esc(a.department || 'Merchandising (MRC)')}" placeholder="Merchandising (MRC)"></div>
+        <div class="field"><label>Manual Title</label><input id="f-manual" value="${esc(a.manual_title || 'Memorandum')}" placeholder="Memorandum"></div>
+      </div>
+      <div class="field"><label>Related Document</label><input id="f-related" value="${esc(a.related_document || '')}" placeholder="e.g. MRC Price List 2026"></div>
+      <div class="form-grid">
+        <div class="field"><label>Prepared By</label><input id="f-prepared" value="${esc(a.prepared_by || '')}" placeholder="Name / Department"></div>
+        <div class="field"><label>Reviewed By</label><input id="f-reviewed" value="${esc(a.reviewed_by || '')}" placeholder="Name / Department"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Approved By</label><input id="f-approved" value="${esc(a.approved_by || '')}" placeholder="Name / Department"></div>
+        <div class="field"><label>Page</label><input value="Auto — filled on every PDF page" disabled></div>
+      </div>
+      <input type="hidden" id="f-memo" value="${esc(a.memo_no || '')}">
+      <input type="hidden" id="f-to" value="${esc(a.to_recipient || '')}">
+      <input type="hidden" id="f-from" value="${esc(a.from_sender || 'Grand Majesty Pharmaceutical Inc.')}">
       <div class="field"><label>Introduction / Instructions</label><textarea id="f-intro" placeholder="Optional message shown at the top of the memo...">${esc(a.intro || '')}</textarea></div>
     </div>
 
@@ -500,8 +507,16 @@ async function saveAnnouncement() {
   const body = {
     title: $('#f-title').value.trim(),
     memo_no: $('#f-memo').value.trim(),
+    doc_no: $('#f-docno').value.trim(),
+    ver: $('#f-ver').value.trim(),
     effective_date: $('#f-date').value,
+    procedure_title: $('#f-procedure').value.trim(),
+    date_created: $('#f-created').value,
+    department: $('#f-department').value.trim(),
+    manual_title: $('#f-manual').value.trim(),
+    related_document: $('#f-related').value.trim(),
     prepared_by: $('#f-prepared').value.trim(),
+    reviewed_by: $('#f-reviewed').value.trim(),
     approved_by: $('#f-approved').value.trim(),
     to_recipient: $('#f-to').value.trim(),
     from_sender: $('#f-from').value.trim(),
@@ -545,11 +560,16 @@ async function renderDetail(id) {
 
     <div class="card">
       <div class="meta-grid">
-        <div class="meta"><span>Memo No.</span><b>${esc(a.memo_no || '—')}</b></div>
-        <div class="meta"><span>Effective Date</span><b>${esc(a.effective_date || '—')}</b></div>
-        <div class="meta"><span>To</span><b>${esc(a.to_recipient || '—')}</b></div>
-        <div class="meta"><span>From</span><b>${esc(a.from_sender || '—')}</b></div>
+        <div class="meta"><span>Doc No.</span><b>${esc(a.doc_no || a.memo_no || '—')}</b></div>
+        <div class="meta"><span>Ver.</span><b>${esc(a.ver || '—')}</b></div>
+        <div class="meta"><span>Eff. Date</span><b>${esc(a.effective_date || '—')}</b></div>
+        <div class="meta"><span>Date Created</span><b>${esc(a.date_created || '—')}</b></div>
+        <div class="meta"><span>Department</span><b>${esc(a.department || 'Merchandising (MRC)')}</b></div>
+        <div class="meta"><span>Manual Title</span><b>${esc(a.manual_title || 'Memorandum')}</b></div>
+        <div class="meta"><span>Procedure Title</span><b>${esc(a.procedure_title || a.title || '—')}</b></div>
+        <div class="meta"><span>Related Document</span><b>${esc(a.related_document || '—')}</b></div>
         <div class="meta"><span>Prepared By</span><b>${esc(a.prepared_by || '—')}</b></div>
+        <div class="meta"><span>Reviewed By</span><b>${esc(a.reviewed_by || '—')}</b></div>
         <div class="meta"><span>Approved By</span><b>${esc(a.approved_by || '—')}</b></div>
         <div class="meta"><span>Products</span><b>${a.products.length}</b></div>
       </div>
