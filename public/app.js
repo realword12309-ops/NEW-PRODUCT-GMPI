@@ -209,11 +209,21 @@ async function renderEditor(id) {
       </div>
       <div class="field"><label>Related Document</label><input id="f-related" value="${esc(a.related_document || '')}" placeholder="e.g. MRC Price List 2026"></div>
       <div class="form-grid">
-        <div class="field"><label>Prepared By</label><input id="f-prepared" value="${esc(a.prepared_by || '')}" placeholder="Name / Department"></div>
-        <div class="field"><label>Reviewed By</label><input id="f-reviewed" value="${esc(a.reviewed_by || '')}" placeholder="Name / Department"></div>
+        <div class="field"><label>Prepared By</label><input id="f-prepared" value="${esc(a.prepared_by || '')}" placeholder="Full name"></div>
+        <div class="field"><label>Position</label><input id="f-prepared-pos" value="${esc(a.prepared_position || '')}" placeholder="e.g. Merchandising Manager"></div>
+        <div class="field"><label>Date</label><input id="f-prepared-date" value="${esc(a.prepared_date || '')}" placeholder="e.g. 2026-11-19"></div>
       </div>
       <div class="form-grid">
-        <div class="field"><label>Approved By</label><input id="f-approved" value="${esc(a.approved_by || '')}" placeholder="Name / Department"></div>
+        <div class="field"><label>Reviewed By</label><input id="f-reviewed" value="${esc(a.reviewed_by || '')}" placeholder="Full name"></div>
+        <div class="field"><label>Position</label><input id="f-reviewed-pos" value="${esc(a.reviewed_position || '')}" placeholder="e.g. Pharmacist"></div>
+        <div class="field"><label>Date</label><input id="f-reviewed-date" value="${esc(a.reviewed_date || '')}" placeholder="e.g. 2026-11-19"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Approved By</label><input id="f-approved" value="${esc(a.approved_by || '')}" placeholder="Full name"></div>
+        <div class="field"><label>Position</label><input id="f-approved-pos" value="${esc(a.approved_position || '')}" placeholder="e.g. General Manager"></div>
+        <div class="field"><label>Date</label><input id="f-approved-date" value="${esc(a.approved_date || '')}" placeholder="e.g. 2026-11-19"></div>
+      </div>
+      <div class="form-grid">
         <div class="field"><label>Page</label><input value="Auto — filled on every PDF page" disabled></div>
       </div>
       <input type="hidden" id="f-memo" value="${esc(a.memo_no || '')}">
@@ -516,8 +526,14 @@ async function saveAnnouncement() {
     manual_title: $('#f-manual').value.trim(),
     related_document: $('#f-related').value.trim(),
     prepared_by: $('#f-prepared').value.trim(),
+    prepared_position: $('#f-prepared-pos').value.trim(),
+    prepared_date: $('#f-prepared-date').value.trim(),
     reviewed_by: $('#f-reviewed').value.trim(),
+    reviewed_position: $('#f-reviewed-pos').value.trim(),
+    reviewed_date: $('#f-reviewed-date').value.trim(),
     approved_by: $('#f-approved').value.trim(),
+    approved_position: $('#f-approved-pos').value.trim(),
+    approved_date: $('#f-approved-date').value.trim(),
     to_recipient: $('#f-to').value.trim(),
     from_sender: $('#f-from').value.trim(),
     intro: $('#f-intro').value.trim(),
