@@ -259,9 +259,17 @@ function validateAnnouncement(body) {
   return {
     title,
     memo_no: String(body.memo_no || '').trim(),
+    doc_no: String(body.doc_no || '').trim(),
+    ver: String(body.ver || '').trim(),
     effective_date: String(body.effective_date || '').trim(),
+    procedure_title: String(body.procedure_title || '').trim(),
+    date_created: String(body.date_created || '').trim(),
+    department: String(body.department || '').trim(),
+    manual_title: String(body.manual_title || '').trim(),
+    related_document: String(body.related_document || '').trim(),
     intro: String(body.intro || '').trim(),
     prepared_by: String(body.prepared_by || '').trim(),
+    reviewed_by: String(body.reviewed_by || '').trim(),
     approved_by: String(body.approved_by || '').trim(),
     to_recipient: String(body.to_recipient || '').trim(),
     from_sender: String(body.from_sender || '').trim() || 'Grand Majesty Pharmaceutical Inc.',
@@ -320,8 +328,8 @@ app.get('/api/announcements', asyncRoute(async (req, res) => {
   const page = Math.max(1, parseInt(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
   const search = String(req.query.search || '').trim();
-  const where = search ? 'WHERE a.title LIKE ? OR a.memo_no LIKE ?' : '';
-  const params = search ? [`%${search}%`, `%${search}%`] : [];
+  const where = search ? 'WHERE a.title LIKE ? OR a.memo_no LIKE ? OR a.doc_no LIKE ?' : '';
+  const params = search ? [`%${search}%`, `%${search}%`, `%${search}%`] : [];
   const total = (await db.prepare(`SELECT COUNT(*) AS c FROM announcements a ${where}`).get(...params)).c;
   const rows = await db.prepare(`
     SELECT a.*,
@@ -339,9 +347,9 @@ app.post('/api/announcements', asyncRoute(async (req, res) => {
   const slug = crypto.randomBytes(6).toString('base64url');
   const id = await db.transaction(async (tx) => {
     const r = await tx.prepare(`
-      INSERT INTO announcements (slug, title, memo_no, effective_date, intro, prepared_by, approved_by, to_recipient, from_sender)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(slug, data.title, data.memo_no, data.effective_date, data.intro, data.prepared_by, data.approved_by, data.to_recipient, data.from_sender);
+      INSERT INTO announcements (slug, title, memo_no, doc_no, ver, effective_date, procedure_title, date_created, department, manual_title, related_document, intro, prepared_by, reviewed_by, approved_by, to_recipient, from_sender)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(slug, data.title, data.memo_no, data.doc_no, data.ver, data.effective_date, data.procedure_title, data.date_created, data.department, data.manual_title, data.related_document, data.intro, data.prepared_by, data.reviewed_by, data.approved_by, data.to_recipient, data.from_sender);
     await insertProducts(tx, r.lastInsertRowid, data.products);
     return Number(r.lastInsertRowid);
   });
@@ -365,9 +373,9 @@ app.put('/api/announcements/:id', asyncRoute(async (req, res, next) => {
   const data = validateAnnouncement(req.body);
   await db.transaction(async (tx) => {
     await tx.prepare(`
-      UPDATE announcements SET title=?, memo_no=?, effective_date=?, intro=?, prepared_by=?, approved_by=?, to_recipient=?, from_sender=?, updated_at=datetime('now')
+      UPDATE announcements SET title=?, memo_no=?, doc_no=?, ver=?, effective_date=?, procedure_title=?, date_created=?, department=?, manual_title=?, related_document=?, intro=?, prepared_by=?, reviewed_by=?, approved_by=?, to_recipient=?, from_sender=?, updated_at=datetime('now')
       WHERE id=?
-    `).run(data.title, data.memo_no, data.effective_date, data.intro, data.prepared_by, data.approved_by, data.to_recipient, data.from_sender, a.id);
+    `).run(data.title, data.memo_no, data.doc_no, data.ver, data.effective_date, data.procedure_title, data.date_created, data.department, data.manual_title, data.related_document, data.intro, data.prepared_by, data.reviewed_by, data.approved_by, data.to_recipient, data.from_sender, a.id);
     await tx.prepare('DELETE FROM products WHERE announcement_id = ?').run(a.id);
     await insertProducts(tx, a.id, data.products);
   });
