@@ -269,8 +269,14 @@ function validateAnnouncement(body) {
     related_document: String(body.related_document || '').trim(),
     intro: String(body.intro || '').trim(),
     prepared_by: String(body.prepared_by || '').trim(),
+    prepared_position: String(body.prepared_position || '').trim(),
+    prepared_date: String(body.prepared_date || '').trim(),
     reviewed_by: String(body.reviewed_by || '').trim(),
+    reviewed_position: String(body.reviewed_position || '').trim(),
+    reviewed_date: String(body.reviewed_date || '').trim(),
     approved_by: String(body.approved_by || '').trim(),
+    approved_position: String(body.approved_position || '').trim(),
+    approved_date: String(body.approved_date || '').trim(),
     to_recipient: String(body.to_recipient || '').trim(),
     from_sender: String(body.from_sender || '').trim() || 'Grand Majesty Pharmaceutical Inc.',
     products: clean,
@@ -347,9 +353,9 @@ app.post('/api/announcements', asyncRoute(async (req, res) => {
   const slug = crypto.randomBytes(6).toString('base64url');
   const id = await db.transaction(async (tx) => {
     const r = await tx.prepare(`
-      INSERT INTO announcements (slug, title, memo_no, doc_no, ver, effective_date, procedure_title, date_created, department, manual_title, related_document, intro, prepared_by, reviewed_by, approved_by, to_recipient, from_sender)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(slug, data.title, data.memo_no, data.doc_no, data.ver, data.effective_date, data.procedure_title, data.date_created, data.department, data.manual_title, data.related_document, data.intro, data.prepared_by, data.reviewed_by, data.approved_by, data.to_recipient, data.from_sender);
+      INSERT INTO announcements (slug, title, memo_no, doc_no, ver, effective_date, procedure_title, date_created, department, manual_title, related_document, intro, prepared_by, prepared_position, prepared_date, reviewed_by, reviewed_position, reviewed_date, approved_by, approved_position, approved_date, to_recipient, from_sender)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(slug, data.title, data.memo_no, data.doc_no, data.ver, data.effective_date, data.procedure_title, data.date_created, data.department, data.manual_title, data.related_document, data.intro, data.prepared_by, data.prepared_position, data.prepared_date, data.reviewed_by, data.reviewed_position, data.reviewed_date, data.approved_by, data.approved_position, data.approved_date, data.to_recipient, data.from_sender);
     await insertProducts(tx, r.lastInsertRowid, data.products);
     return Number(r.lastInsertRowid);
   });
@@ -373,9 +379,9 @@ app.put('/api/announcements/:id', asyncRoute(async (req, res, next) => {
   const data = validateAnnouncement(req.body);
   await db.transaction(async (tx) => {
     await tx.prepare(`
-      UPDATE announcements SET title=?, memo_no=?, doc_no=?, ver=?, effective_date=?, procedure_title=?, date_created=?, department=?, manual_title=?, related_document=?, intro=?, prepared_by=?, reviewed_by=?, approved_by=?, to_recipient=?, from_sender=?, updated_at=datetime('now')
+      UPDATE announcements SET title=?, memo_no=?, doc_no=?, ver=?, effective_date=?, procedure_title=?, date_created=?, department=?, manual_title=?, related_document=?, intro=?, prepared_by=?, prepared_position=?, prepared_date=?, reviewed_by=?, reviewed_position=?, reviewed_date=?, approved_by=?, approved_position=?, approved_date=?, to_recipient=?, from_sender=?, updated_at=datetime('now')
       WHERE id=?
-    `).run(data.title, data.memo_no, data.doc_no, data.ver, data.effective_date, data.procedure_title, data.date_created, data.department, data.manual_title, data.related_document, data.intro, data.prepared_by, data.reviewed_by, data.approved_by, data.to_recipient, data.from_sender, a.id);
+    `).run(data.title, data.memo_no, data.doc_no, data.ver, data.effective_date, data.procedure_title, data.date_created, data.department, data.manual_title, data.related_document, data.intro, data.prepared_by, data.prepared_position, data.prepared_date, data.reviewed_by, data.reviewed_position, data.reviewed_date, data.approved_by, data.approved_position, data.approved_date, data.to_recipient, data.from_sender, a.id);
     await tx.prepare('DELETE FROM products WHERE announcement_id = ?').run(a.id);
     await insertProducts(tx, a.id, data.products);
   });

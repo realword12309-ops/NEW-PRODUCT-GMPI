@@ -48,8 +48,14 @@ CREATE TABLE IF NOT EXISTS announcements (
   related_document TEXT NOT NULL DEFAULT '',
   intro TEXT NOT NULL DEFAULT '',
   prepared_by TEXT NOT NULL DEFAULT '',
+  prepared_position TEXT NOT NULL DEFAULT '',
+  prepared_date TEXT NOT NULL DEFAULT '',
   reviewed_by TEXT NOT NULL DEFAULT '',
+  reviewed_position TEXT NOT NULL DEFAULT '',
+  reviewed_date TEXT NOT NULL DEFAULT '',
   approved_by TEXT NOT NULL DEFAULT '',
+  approved_position TEXT NOT NULL DEFAULT '',
+  approved_date TEXT NOT NULL DEFAULT '',
   to_recipient TEXT NOT NULL DEFAULT '',
   from_sender TEXT NOT NULL DEFAULT 'Grand Majesty Pharmaceutical Inc.',
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','sent')),
@@ -120,8 +126,14 @@ CREATE TABLE IF NOT EXISTS announcements (
   related_document TEXT NOT NULL DEFAULT '',
   intro TEXT NOT NULL DEFAULT '',
   prepared_by TEXT NOT NULL DEFAULT '',
+  prepared_position TEXT NOT NULL DEFAULT '',
+  prepared_date TEXT NOT NULL DEFAULT '',
   reviewed_by TEXT NOT NULL DEFAULT '',
+  reviewed_position TEXT NOT NULL DEFAULT '',
+  reviewed_date TEXT NOT NULL DEFAULT '',
   approved_by TEXT NOT NULL DEFAULT '',
+  approved_position TEXT NOT NULL DEFAULT '',
+  approved_date TEXT NOT NULL DEFAULT '',
   to_recipient TEXT NOT NULL DEFAULT '',
   from_sender TEXT NOT NULL DEFAULT 'Grand Majesty Pharmaceutical Inc.',
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','sent')),
@@ -299,6 +311,12 @@ async function init() {
       await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS manual_title TEXT NOT NULL DEFAULT 'Memorandum'");
       await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS related_document TEXT NOT NULL DEFAULT ''");
       await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS reviewed_by TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS prepared_position TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS prepared_date TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS reviewed_position TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS reviewed_date TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS approved_position TEXT NOT NULL DEFAULT ''");
+      await c.query("ALTER TABLE announcements ADD COLUMN IF NOT EXISTS approved_date TEXT NOT NULL DEFAULT ''");
     });
     return;
   }
@@ -327,6 +345,12 @@ async function init() {
     ['manual_title', "'Memorandum'"],
     ['related_document', "''"],
     ['reviewed_by', "''"],
+    ['prepared_position', "''"],
+    ['prepared_date', "''"],
+    ['reviewed_position', "''"],
+    ['reviewed_date', "''"],
+    ['approved_position', "''"],
+    ['approved_date', "''"],
   ]) {
     if (!annCols.includes(col)) sqlite.exec(`ALTER TABLE announcements ADD COLUMN ${col} TEXT NOT NULL DEFAULT ${def}`);
   }
